@@ -8,6 +8,9 @@ export default function AddPatient() {
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
+  const [weight, setWeight] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [disease, setDisease] = useState("");
   const [doctor, setDoctor] = useState("");
   const [doctors, setDoctors] = useState([]);
@@ -26,34 +29,45 @@ export default function AddPatient() {
     e.preventDefault();
     if (loading) return;
 
-    if (!name || !age || !gender || !disease || !doctor) {
+    if (!name || !age || !gender || !weight || !email || !password || !disease || !doctor) {
       alert("Please fill all fields");
       return;
     }
 
+    // find selected doctor object
+    const selectedDoctor = doctors.find(
+      (d) => (d.id || d._id).toString() === doctor
+    );
+
     try {
       setLoading(true);
 
-      // POST to backend
       await axios.post("https://doc-back.onrender.com/patients", {
         name,
-        age,
+        weight,
         gender,
+        age,
+        email,
+        password,
         disease,
-        doctor, // just send doctor ID
+        doctor: {
+          id: selectedDoctor.id || selectedDoctor._id,
+          name: selectedDoctor.name,
+          specialization: selectedDoctor.specialization,
+        },
       });
 
-      // SUCCESS POPUP
       alert("Patient Added Successfully!");
 
-      // CLEAR ALL FIELDS
       setName("");
       setAge("");
       setGender("");
+      setWeight("");
+      setEmail("");
+      setPassword("");
       setDisease("");
       setDoctor("");
 
-      // REDIRECT to patients page
       navigate("/patients");
     } catch (error) {
       console.error(error);
@@ -69,44 +83,34 @@ export default function AddPatient() {
         <form className="col-12 col-md-6" onSubmit={handleSubmit}>
           <h3 className="text-center mb-4">Add Patient</h3>
 
-          <input
-            className="form-control mb-3"
-            placeholder="Patient Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          <input className="form-control mb-3" placeholder="Patient Name"
+            value={name} onChange={(e) => setName(e.target.value)} />
 
-          <input
-            className="form-control mb-3"
-            type="number"
-            placeholder="Age"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-          />
+          <input className="form-control mb-3" type="number" placeholder="Age"
+            value={age} onChange={(e) => setAge(e.target.value)} />
 
-          <select
-            className="form-select mb-3"
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-          >
+          <input className="form-control mb-3" type="number" placeholder="Weight"
+            value={weight} onChange={(e) => setWeight(e.target.value)} />
+
+          <select className="form-select mb-3"
+            value={gender} onChange={(e) => setGender(e.target.value)}>
             <option value="">Select Gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
 
-          <input
-            className="form-control mb-3"
-            placeholder="Disease"
-            value={disease}
-            onChange={(e) => setDisease(e.target.value)}
-          />
+          <input className="form-control mb-3" placeholder="Email"
+            value={email} onChange={(e) => setEmail(e.target.value)} />
 
-          <select
-            className="form-select mb-4"
-            value={doctor}
-            onChange={(e) => setDoctor(e.target.value)}
-          >
+          <input className="form-control mb-3" type="password" placeholder="Password"
+            value={password} onChange={(e) => setPassword(e.target.value)} />
+
+          <input className="form-control mb-3" placeholder="Disease"
+            value={disease} onChange={(e) => setDisease(e.target.value)} />
+
+          <select className="form-select mb-4"
+            value={doctor} onChange={(e) => setDoctor(e.target.value)}>
             <option value="">Select Doctor</option>
             {doctors.map((d) => (
               <option key={d.id || d._id} value={d.id || d._id}>
